@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Library</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: Arial, sans-serif; background:#f4f5f7; margin:0; padding:0; color:#222; }
+  header { background:#1f2937; color:#fff; padding:16px 24px; display:flex; justify-content:space-between; align-items:center; }
+  header h1 { font-size:18px; margin:0; }
+  #userInfo { font-size:14px; }
+  #userInfo button { margin-left:10px; background:#ef4444; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; }
+  main { max-width:960px; margin:24px auto; padding:0 16px; }
+  .card { background:#fff; border-radius:8px; padding:20px; margin-bottom:20px; box-shadow:0 1px 3px rgba(0,0,0,.1); }
+  .card h2 { margin-top:0; font-size:16px; color:#374151; }
+  input, textarea, select { width:100%; padding:8px; margin:6px 0; border:1px solid #d1d5db; border-radius:4px; font-size:14px; }
+  button.primary { background:#2563eb; color:#fff; border:none; padding:9px 16px; border-radius:4px; cursor:pointer; font-size:14px; }
+  button.primary:hover { background:#1d4ed8; }
+  .row { display:flex; gap:10px; }
+  .row > * { flex:1; }
+  .book { border-bottom:1px solid #eee; padding:10px 0; }
+  .book:last-child { border-bottom:none; }
+  .book .title { font-weight:bold; }
+  .book .meta { font-size:12px; color:#666; }
+  .match { display:inline-block; background:#10b981; color:#fff; font-size:12px; padding:2px 8px; border-radius:10px; margin-left:6px; }
+  .chat-box { border:1px solid #d1d5db; border-radius:4px; padding:10px; height:220px; overflow-y:auto; margin-bottom:8px; background:#fafafa; }
+  .msg { margin-bottom:10px; }
+  .msg.user { text-align:right; }
+  .msg .bubble { display:inline-block; padding:8px 12px; border-radius:12px; max-width:80%; font-size:14px; }
+  .msg.user .bubble { background:#2563eb; color:#fff; }
+  .msg.bot .bubble { background:#e5e7eb; color:#111; }
+  .error { color:#b91c1c; font-size:13px; margin-top:6px; }
+  .hidden { display:none; }
+  small.note { color:#888; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📚 AI-Powered Library</h1>
+  <div id="userInfo"></div>
+</header>
+
+<main>
+
+  <!-- AUTH CARD -->
+  <div class="card" id="authCard">
+    <h2>Login / Register</h2>
+    <div class="row">
+      <div>
+        <h3>Login</h3>
+        <input id="loginEmail" placeholder="Email" value="admin@library.test">
+        <input id="loginPassword" type="password" placeholder="Password" value="password123">
+        <button class="primary" onclick="login()">Login</button>
+        <div class="error" id="loginError"></div>
+      </div>
+      <div>
+        <h3>Register (new user)</h3>
+        <input id="regName" placeholder="Name">
+        <input id="regEmail" placeholder="Email">
+        <input id="regPassword" type="password" placeholder="Password (min 8 chars)">
+        <button class="primary" onclick="register()">Register</button>
+        <div class="error" id="regError"></div>
+      </div>
+    </div>
+    <small class="note">Default admin: admin@library.test / password123</small>
+  </div>
+
+  <!-- MAIN APP (hidden until logged in) -->
+  <div id="appArea" class="hidden">
+
+    <!-- ADMIN: ADD BOOK -->
+    <div class="card" id="adminCard" style="display:none;">
+      <h2>➕ Add a Book (Admin only)</h2>
+      <div class="row">
+        <input id="bTitle" placeholder="Title">
+        <input id="bAuthor" placeholder="Author">
+      </div>
+      <input id="bDescription" placeholder="Description">
+      <div class="row">
+        <select id="bCategory"></select>
+        <input id="bCopies" type="number" placeholder="Available copies" value="1">
+      </div>
+      <button class="primary" onclick="addBook()">Add Book</button>
+      <div class="error" id="bookError"></div>
+    </div>
+
+    <!-- PROFILE (users) -->
+    <div class="card" id="profileCard" style="display:none;">
+      <h2>👤 My Profile / Interests</h2>
+      <input id="pInterests" placeholder="Interests (comma separated), e.g. PHP, Laravel, MySQL">
+      <button class="primary" onclick="updateProfile()">Save Profile</button>
+      <div class="error" id="profileMsg"></div>
+    </div>
+
+    <!-- RECOMMENDATIONS -->
+    <div class="card" id="recCard" style="display:none;">
+      <h2>✨ My Recommendations</h2>
+      <button class="primary" onclick="loadRecommendations()">Get Recommendations</button>
+      <div id="recList"></div>
+    </div>
+
+    <!-- BOOK CATALOG -->
+    <div class="card">
+      <h2>📖 Book Catalog</h2>
+      <input id="searchBox" placeholder="Search books..." oninput="loadBooks()">
+      <div id="bookList"></div>
+    </div>
+
+    <!-- CHATBOT -->
+    <div class="card">
+      <h2>🤖 Ask the Library Chatbot</h2>
+      <div class="chat-box" id="chatBox"></div>
+      <div class="row">
+        <input id="chatInput" placeholder="Ask something..." onkeydown="if(event.key==='Enter')askBot()">
+        <button class="primary" onclick="askBot()" style="flex:0 0 100px;">Send</button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+const API = window.location.origin + '/api';
+let token = localStorage.getItem('token') || null;
+let currentUser = JSON.parse(localStorage.getItem('user') || 'null');
+
+function headers(json = true) {
+  const h = { 'Accept': 'application/json' };
+  if (json) h['Content-Type'] = 'application/json';
+  if (token) h['Authorization'] = 'Bearer ' + token;
+  return h;
+}
+
+async function api(path, options = {}) {
+  const res = await fetch(API + path, {
+    method: options.method || 'GET',
+    headers: headers(!!options.body),
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  });
+  let data = null;
+  try { data = await res.json(); } catch (e) {}
+  if (!res.ok) throw (data && data.message) ? data.message : ('Error ' + res.status);
+  return data;
+}
+
+function renderUser() {
+  const el = document.getElementById('userInfo');
+  if (currentUser) {
+    el.innerHTML = `Logged in as <b>${currentUser.name}</b> (${currentUser.role}) <button onclick="logout()">Logout</button>`;
+    document.getElementById('authCard').classList.add('hidden');
+    document.getElementById('appArea').classList.remove('hidden');
+    document.getElementById('adminCard').style.display = currentUser.role === 'admin' ? 'block' : 'none';
+    document.getElementById('profileCard').style.display = currentUser.role === 'user' ? 'block' : 'none';
+    document.getElementById('recCard').style.display = currentUser.role === 'user' ? 'block' : 'none';
+    loadCategories();
+    loadBooks();
+  } else {
+    el.innerHTML = '';
+    document.getElementById('authCard').classList.remove('hidden');
+    document.getElementById('appArea').classList.add('hidden');
+  }
+}
+
+async function login() {
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  document.getElementById('loginError').textContent = '';
+  try {
+    const data = await api('/login', { method: 'POST', body: { email, password } });
+    token = data.token; currentUser = data.user;
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(currentUser));
+    renderUser();
+  } catch (e) { document.getElementById('loginError').textContent = e; }
+}
+
+async function register() {
+  const name = document.getElementById('regName').value;
+  const email = document.getElementById('regEmail').value;
+  const password = document.getElementById('regPassword').value;
+  document.getElementById('regError').textContent = '';
+  try {
+    const data = await api('/register', { method: 'POST', body: { name, email, password, password_confirmation: password } });
+    token = data.token; currentUser = data.user;
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(currentUser));
+    renderUser();
+  } catch (e) { document.getElementById('regError').textContent = JSON.stringify(e); }
+}
+
+function logout() {
+  token = null; currentUser = null;
+  localStorage.removeItem('token'); localStorage.removeItem('user');
+  renderUser();
+}
+
+async function loadCategories() {
+  try {
+    const cats = await api('/categories');
+    const sel = document.getElementById('bCategory');
+    sel.innerHTML = cats.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  } catch (e) {}
+}
+
+async function loadBooks() {
+  const search = document.getElementById('searchBox') ? document.getElementById('searchBox').value : '';
+  try {
+    const data = await api('/books?search=' + encodeURIComponent(search));
+    const list = data.data || data;
+    document.getElementById('bookList').innerHTML = list.map(b => `
+      <div class="book">
+        <div class="title">${b.title}</div>
+        <div class="meta">by ${b.author} — ${b.category ? b.category.name : ''} — ${b.available_copies} copies</div>
+      </div>
+    `).join('') || '<p>No books yet.</p>';
+  } catch (e) {}
+}
+
+async function addBook() {
+  const body = {
+    title: document.getElementById('bTitle').value,
+    author: document.getElementById('bAuthor').value,
+    description: document.getElementById('bDescription').value,
+    category_id: parseInt(document.getElementById('bCategory').value),
+    available_copies: parseInt(document.getElementById('bCopies').value) || 0,
+  };
+  document.getElementById('bookError').textContent = '';
+  try {
+    await api('/admin/books', { method: 'POST', body });
+    document.getElementById('bTitle').value = '';
+    document.getElementById('bAuthor').value = '';
+    document.getElementById('bDescription').value = '';
+    loadBooks();
+  } catch (e) { document.getElementById('bookError').textContent = JSON.stringify(e); }
+}
+
+async function updateProfile() {
+  const interests = document.getElementById('pInterests').value.split(',').map(s => s.trim()).filter(Boolean);
+  document.getElementById('profileMsg').textContent = '';
+  try {
+    await api('/profile', { method: 'PUT', body: { interests } });
+    document.getElementById('profileMsg').textContent = 'Saved!';
+  } catch (e) { document.getElementById('profileMsg').textContent = JSON.stringify(e); }
+}
+
+async function loadRecommendations() {
+  document.getElementById('recList').innerHTML = 'Loading...';
+  try {
+    const data = await api('/recommendations');
+    document.getElementById('recList').innerHTML = data.slice(0, 10).map(r => `
+      <div class="book">
+        <span class="title">${r.book.title}</span>
+        <span class="match">${r.match}% match</span>
+        <div class="meta">by ${r.book.author}</div>
+      </div>
+    `).join('') || '<p>No recommendations yet.</p>';
+  } catch (e) { document.getElementById('recList').textContent = JSON.stringify(e); }
+}
+
+async function askBot() {
+  const input = document.getElementById('chatInput');
+  const question = input.value.trim();
+  if (!question) return;
+  const box = document.getElementById('chatBox');
+  box.innerHTML += `<div class="msg user"><div class="bubble">${question}</div></div>`;
+  input.value = '';
+  box.scrollTop = box.scrollHeight;
+  try {
+    const data = await api('/chatbot/ask', { method: 'POST', body: { question } });
+    box.innerHTML += `<div class="msg bot"><div class="bubble">${data.answer}</div></div>`;
+  } catch (e) {
+    box.innerHTML += `<div class="msg bot"><div class="bubble">Error: ${e}</div></div>`;
+  }
+  box.scrollTop = box.scrollHeight;
+}
+
+renderUser();
+</script>
+</body>
+</html>

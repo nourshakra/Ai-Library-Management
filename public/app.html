@@ -1,281 +1,351 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>AI Library</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>مكتبة نوفا — مكتبتك الذكية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; }
-  body { font-family: Arial, sans-serif; background:#f4f5f7; margin:0; padding:0; color:#222; }
-  header { background:#1f2937; color:#fff; padding:16px 24px; display:flex; justify-content:space-between; align-items:center; }
-  header h1 { font-size:18px; margin:0; }
-  #userInfo { font-size:14px; }
-  #userInfo button { margin-left:10px; background:#ef4444; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; }
-  main { max-width:960px; margin:24px auto; padding:0 16px; }
-  .card { background:#fff; border-radius:8px; padding:20px; margin-bottom:20px; box-shadow:0 1px 3px rgba(0,0,0,.1); }
-  .card h2 { margin-top:0; font-size:16px; color:#374151; }
-  input, textarea, select { width:100%; padding:8px; margin:6px 0; border:1px solid #d1d5db; border-radius:4px; font-size:14px; }
-  button.primary { background:#2563eb; color:#fff; border:none; padding:9px 16px; border-radius:4px; cursor:pointer; font-size:14px; }
-  button.primary:hover { background:#1d4ed8; }
-  .row { display:flex; gap:10px; }
-  .row > * { flex:1; }
-  .book { border-bottom:1px solid #eee; padding:10px 0; }
-  .book:last-child { border-bottom:none; }
-  .book .title { font-weight:bold; }
-  .book .meta { font-size:12px; color:#666; }
-  .match { display:inline-block; background:#10b981; color:#fff; font-size:12px; padding:2px 8px; border-radius:10px; margin-left:6px; }
-  .chat-box { border:1px solid #d1d5db; border-radius:4px; padding:10px; height:220px; overflow-y:auto; margin-bottom:8px; background:#fafafa; }
-  .msg { margin-bottom:10px; }
-  .msg.user { text-align:right; }
-  .msg .bubble { display:inline-block; padding:8px 12px; border-radius:12px; max-width:80%; font-size:14px; }
-  .msg.user .bubble { background:#2563eb; color:#fff; }
-  .msg.bot .bubble { background:#e5e7eb; color:#111; }
-  .error { color:#b91c1c; font-size:13px; margin-top:6px; }
-  .hidden { display:none; }
-  small.note { color:#888; }
+:root{
+  --bg:#f5f7fb;--surface:#fff;--surface-2:#f8fafc;--text:#172033;--muted:#718096;
+  --primary:#6d5dfc;--primary-2:#8f7cff;--cyan:#22c7d8;--pink:#ee6aa7;--green:#22b573;
+  --border:#e8ecf4;--shadow:0 18px 55px rgba(43,50,80,.10);--radius:22px;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(circle at 85% 0%,#eeeaff 0,transparent 28%),radial-gradient(circle at 0% 35%,#e9fbff 0,transparent 25%),var(--bg);color:var(--text);font-family:Cairo,Arial,sans-serif}
+button,input,textarea,select{font:inherit}button{cursor:pointer}
+.hidden{display:none!important}.muted{color:var(--muted)}.error{color:#d14361;font-size:13px;margin-top:8px}.success{color:#15956a;font-size:13px;margin-top:8px}
+.shell{display:flex;min-height:100vh}.sidebar{width:260px;position:fixed;right:0;top:0;bottom:0;background:rgba(255,255,255,.78);backdrop-filter:blur(22px);border-left:1px solid var(--border);padding:26px 18px;z-index:20}
+.brand{display:flex;align-items:center;gap:12px;padding:0 8px 28px}.brand-mark{width:45px;height:45px;border-radius:15px;background:linear-gradient(135deg,var(--primary),var(--cyan));display:grid;place-items:center;color:#fff;box-shadow:0 12px 28px #6d5dfc35}
+.brand h1{font-size:17px;margin:0;font-weight:800}.brand small{color:var(--muted);font-size:11px}
+.nav{display:grid;gap:7px}.nav button{border:0;background:transparent;text-align:right;padding:13px 14px;border-radius:14px;color:#647087;display:flex;align-items:center;gap:11px;transition:.2s}.nav button:hover,.nav button.active{background:#f0edff;color:var(--primary);font-weight:700}.nav svg{width:19px;height:19px}
+.side-bottom{position:absolute;bottom:22px;right:18px;left:18px}.mini-card{background:linear-gradient(135deg,#171e35,#343b63);color:#fff;border-radius:20px;padding:16px;overflow:hidden;position:relative}.mini-card:after{content:"";position:absolute;width:100px;height:100px;border-radius:50%;background:#8f7cff55;left:-35px;bottom:-40px}.mini-card b{display:block;font-size:14px}.mini-card span{font-size:11px;color:#cbd1e7}
+.main{margin-right:260px;width:calc(100% - 260px);padding:24px 34px 50px}.topbar{height:64px;display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:25px}.search{flex:1;max-width:560px;position:relative}.search input{width:100%;height:48px;border:1px solid var(--border);border-radius:16px;background:rgba(255,255,255,.8);padding:0 48px 0 18px;outline:none;box-shadow:0 8px 28px #27305a08}.search svg{position:absolute;right:17px;top:15px;color:#98a1b5;width:19px}.user-area{display:flex;align-items:center;gap:12px}.avatar{width:43px;height:43px;border-radius:50%;background:linear-gradient(135deg,#ff9ac7,#806cff);color:#fff;display:grid;place-items:center;font-weight:800}.user-area b{display:block;font-size:13px}.user-area span{font-size:11px;color:var(--muted)}.icon-btn{width:42px;height:42px;border:1px solid var(--border);background:#fff;border-radius:14px;display:grid;place-items:center;color:#667085}
+.hero{position:relative;overflow:hidden;background:linear-gradient(120deg,#1d2541 0%,#312b66 52%,#5e4bd9 100%);border-radius:28px;padding:38px 42px;color:#fff;box-shadow:var(--shadow);min-height:260px}.hero:before,.hero:after{content:"";position:absolute;border-radius:50%;filter:blur(2px)}.hero:before{width:270px;height:270px;background:#8f7cff45;left:-65px;top:-115px}.hero:after{width:190px;height:190px;background:#22c7d844;right:25%;bottom:-120px}.hero-content{position:relative;z-index:2;max-width:650px}.eyebrow{font-size:12px;color:#c9c2ff;font-weight:700;letter-spacing:.5px}.hero h2{font-family:"Playfair Display",Cairo,serif;font-size:38px;line-height:1.3;margin:9px 0}.hero p{color:#dce0ef;max-width:560px;margin:0 0 22px;font-size:14px}.hero-actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:0;border-radius:13px;padding:11px 17px;font-weight:700}.btn-primary{background:#fff;color:#4d40c7}.btn-ghost{background:#ffffff15;color:#fff;border:1px solid #ffffff28}.hero-art{position:absolute;left:42px;bottom:-15px;display:flex;gap:-8px;transform:rotate(-7deg);opacity:.95}.hero-book{width:90px;height:130px;border-radius:7px 12px 12px 7px;padding:13px;color:#fff;box-shadow:0 15px 30px #0004;display:flex;flex-direction:column;justify-content:space-between;font-family:"Playfair Display",serif}.hero-book:nth-child(1){background:linear-gradient(145deg,#ff7d9d,#ad3e79);transform:rotate(-8deg)}.hero-book:nth-child(2){background:linear-gradient(145deg,#28bfcf,#3769dd);transform:translateY(-16px)}.hero-book:nth-child(3){background:linear-gradient(145deg,#f4ae54,#e55a57);transform:rotate(8deg)}.hero-book small{font-family:Cairo;font-size:8px;opacity:.8}.hero-book strong{font-size:15px;line-height:1.05}
+.section{margin-top:30px}.section-head{display:flex;align-items:end;justify-content:space-between;margin-bottom:15px}.section-head h3{margin:0;font-size:21px}.section-head p{margin:3px 0 0;color:var(--muted);font-size:12px}.link-btn{background:none;border:0;color:var(--primary);font-weight:700;font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.stat{background:#fff;border:1px solid var(--border);border-radius:19px;padding:17px;box-shadow:0 10px 30px #27305a06;display:flex;gap:12px;align-items:center}.stat-icon{width:43px;height:43px;border-radius:14px;display:grid;place-items:center}.stat:nth-child(1) .stat-icon{background:#eeeaff;color:#6d5dfc}.stat:nth-child(2) .stat-icon{background:#e7fbfd;color:#12a5b7}.stat:nth-child(3) .stat-icon{background:#fff0f6;color:#df4f91}.stat:nth-child(4) .stat-icon{background:#eafaf2;color:#20a66b}.stat b{display:block;font-size:20px}.stat span{font-size:11px;color:var(--muted)}
+.filters{display:flex;gap:8px;flex-wrap:wrap}.chip{border:1px solid var(--border);background:#fff;border-radius:999px;padding:7px 13px;color:#667085;font-size:12px}.chip.active{background:#6d5dfc;color:#fff;border-color:#6d5dfc}
+.books{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}.book-card{background:#fff;border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 12px 35px #27305a08;transition:.25s;position:relative}.book-card:hover{transform:translateY(-5px);box-shadow:0 22px 45px #27305a15}.cover{height:205px;padding:18px;position:relative;display:flex;align-items:flex-end;overflow:hidden}.cover:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 25%,#00000042 100%)}.cover-inner{position:relative;z-index:1;color:#fff;width:78%;font-family:"Playfair Display",serif}.cover-inner strong{display:block;font-size:20px;line-height:1.1}.cover-inner span{display:block;font-family:Cairo;font-size:10px;margin-top:8px;opacity:.85}.cover-no{position:absolute;top:14px;left:14px;z-index:2;width:32px;height:32px;border-radius:10px;background:#fff3;backdrop-filter:blur(8px);display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px}.book-info{padding:15px}.book-info h4{margin:0 0 5px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.book-info p{margin:0 0 10px;color:var(--muted);font-size:11px}.book-meta{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#8993a7}.available{color:#15956a;background:#eafaf2;padding:4px 8px;border-radius:999px}.unavailable{color:#d14361;background:#fff0f3;padding:4px 8px;border-radius:999px}
+.book-actions{display:flex;gap:7px;margin-top:10px}
+.admin-btn{border:0;border-radius:10px;padding:7px 10px;font-size:11px;font-weight:700}
+.admin-edit{background:#eeeaff;color:#594bd1}
+.admin-delete{background:#fff0f3;color:#d14361}
+.image-preview{width:120px;height:165px;border-radius:12px;object-fit:cover;border:1px solid var(--border);background:#f1f3f8;display:block;margin-top:8px}
+
+.two-col{display:grid;grid-template-columns:1.35fr .85fr;gap:20px}.panel{background:#fff;border:1px solid var(--border);border-radius:22px;padding:20px;box-shadow:0 12px 35px #27305a08}.rec-list{display:grid;gap:11px}.rec{display:flex;gap:11px;align-items:center;padding:9px;border-radius:14px;background:#fafbfe}.rec-cover{width:43px;height:55px;border-radius:7px;flex:none}.rec h4{font-size:12px;margin:0 0 3px}.rec p{font-size:10px;color:var(--muted);margin:0}.match{margin-right:auto;font-size:10px;font-weight:800;color:#6d5dfc;background:#eeeaff;padding:5px 7px;border-radius:999px}
+.chat{height:350px;display:flex;flex-direction:column}.chat-box{flex:1;overflow:auto;padding:4px 2px 14px}.msg{display:flex;margin:8px 0}.msg.user{justify-content:flex-start}.msg.bot{justify-content:flex-end}.bubble{max-width:78%;padding:10px 13px;border-radius:15px;font-size:12px;line-height:1.7}.msg.user .bubble{background:#6d5dfc;color:#fff;border-bottom-left-radius:5px}.msg.bot .bubble{background:#f1f3f8;color:#2e374b;border-bottom-right-radius:5px}.chat-form{display:flex;gap:8px}.chat-form input{flex:1;border:1px solid var(--border);background:#f8fafc;border-radius:13px;padding:10px 13px;outline:none}.send{width:45px;border:0;border-radius:13px;background:#6d5dfc;color:#fff}
+.auth{min-height:100vh;display:grid;place-items:center;padding:25px;background:radial-gradient(circle at 20% 20%,#dffbff,transparent 35%),radial-gradient(circle at 90% 90%,#eeeaff,transparent 35%),#f7f8fc}.auth-card{width:min(1000px,95vw);background:#fff;border:1px solid var(--border);border-radius:30px;box-shadow:var(--shadow);overflow:hidden;display:grid;grid-template-columns:1.05fr .95fr}.auth-side{padding:42px;background:linear-gradient(145deg,#202843,#4b40a5);color:#fff;position:relative;overflow:hidden}.auth-side:after{content:"";position:absolute;width:280px;height:280px;border-radius:50%;background:#22c7d833;left:-100px;bottom:-100px}.auth-side h2{font-family:"Playfair Display",serif;font-size:39px;margin:50px 0 12px}.auth-side p{color:#d8dcef;font-size:13px;line-height:1.9}.auth-points{display:grid;gap:12px;margin-top:30px;position:relative;z-index:2}.point{display:flex;gap:10px;align-items:center;font-size:12px}.point i{width:27px;height:27px;border-radius:9px;background:#fff18;display:grid;place-items:center;border:1px solid #fff2}.auth-form{padding:42px}.tabs{display:flex;background:#f4f5f9;border-radius:12px;padding:4px;margin-bottom:25px}.tabs button{flex:1;border:0;background:transparent;padding:10px;border-radius:9px;color:#788298}.tabs button.active{background:#fff;color:#4e42c8;font-weight:800;box-shadow:0 4px 14px #0000000b}.form-title h3{font-size:24px;margin:0 0 4px}.form-title p{font-size:12px;color:var(--muted);margin:0 0 22px}.field{margin-bottom:14px}.field label{display:block;font-size:11px;font-weight:700;margin-bottom:6px;color:#4e5870}.field input{width:100%;height:46px;border:1px solid var(--border);border-radius:13px;padding:0 13px;outline:none;background:#fafbfe}.field input:focus{border-color:#a69cff;box-shadow:0 0 0 4px #6d5dfc12}.submit{width:100%;height:47px;border:0;border-radius:13px;background:linear-gradient(135deg,#6d5dfc,#8b73ff);color:#fff;font-weight:800;box-shadow:0 12px 24px #6d5dfc2c}
+.modal{position:fixed;inset:0;background:#10172a70;backdrop-filter:blur(8px);z-index:50;display:grid;place-items:center;padding:20px}.modal-card{width:min(650px,100%);background:#fff;border-radius:24px;padding:25px;box-shadow:var(--shadow)}.modal-head{display:flex;justify-content:space-between;align-items:center}.modal-head h3{margin:0}.close{border:0;background:#f1f3f8;border-radius:10px;width:35px;height:35px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.textarea{width:100%;min-height:90px;resize:vertical;border:1px solid var(--border);border-radius:13px;padding:12px;outline:none;background:#fafbfe}
+.empty{padding:35px;text-align:center;color:var(--muted);background:#fafbfe;border-radius:17px}.loading{padding:25px;text-align:center;color:var(--muted)}
+.toast{position:fixed;left:25px;bottom:25px;z-index:80;background:#172033;color:#fff;padding:12px 17px;border-radius:13px;box-shadow:var(--shadow);font-size:12px;transform:translateY(20px);opacity:0;transition:.25s}.toast.show{transform:none;opacity:1}
+@media(max-width:1100px){.books{grid-template-columns:repeat(3,1fr)}.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:850px){.sidebar{width:76px;padding:20px 10px}.brand h1,.brand small,.nav button span,.side-bottom{display:none}.brand{justify-content:center;padding-bottom:20px}.nav button{justify-content:center}.main{margin-right:76px;width:calc(100% - 76px);padding:18px}.hero{padding:30px}.hero-art{display:none}.two-col{grid-template-columns:1fr}.books{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.topbar{height:auto;align-items:stretch;flex-direction:column}.search{max-width:none}.user-area{justify-content:space-between}.hero h2{font-size:29px}.stats{grid-template-columns:1fr 1fr}.books{grid-template-columns:1fr 1fr;gap:10px}.cover{height:180px}.auth-card{grid-template-columns:1fr}.auth-side{display:none}.auth-form{padding:28px 22px}.grid2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-
-<header>
-  <h1>📚 AI-Powered Library</h1>
-  <div id="userInfo"></div>
-</header>
-
-<main>
-
-  <!-- AUTH CARD -->
-  <div class="card" id="authCard">
-    <h2>Login / Register</h2>
-    <div class="row">
-      <div>
-        <h3>Login</h3>
-        <input id="loginEmail" placeholder="Email" value="admin@library.test">
-        <input id="loginPassword" type="password" placeholder="Password" value="password123">
-        <button class="primary" onclick="login()">Login</button>
-        <div class="error" id="loginError"></div>
+<div id="authView" class="auth">
+  <div class="auth-card">
+    <section class="auth-side">
+      <div class="brand"><div class="brand-mark">✦</div><div><h1>مكتبة نوفا</h1><small>AI • Knowledge • Discovery</small></div></div>
+      <h2>اقرأ أكثر.<br>اكتشف أذكى.</h2>
+      <p>واجهة مكتبة حديثة تجمع بين جمال التصميم، البحث السريع، التوصيات الذكية ومساعد AI في تجربة واحدة.</p>
+      <div class="auth-points">
+        <div class="point"><i>✓</i> توصيات كتب مبنية على اهتماماتك</div>
+        <div class="point"><i>✓</i> بحث فوري داخل الكتالوج</div>
+        <div class="point"><i>✓</i> مساعد ذكي متاح طوال الوقت</div>
       </div>
-      <div>
-        <h3>Register (new user)</h3>
-        <input id="regName" placeholder="Name">
-        <input id="regEmail" placeholder="Email">
-        <input id="regPassword" type="password" placeholder="Password (min 8 chars)">
-        <button class="primary" onclick="register()">Register</button>
+    </section>
+    <section class="auth-form">
+      <div class="tabs"><button id="loginTab" class="active" onclick="showAuth('login')">تسجيل الدخول</button><button id="registerTab" onclick="showAuth('register')">حساب جديد</button></div>
+      <div id="loginForm">
+        <div class="form-title"><h3>أهلاً بعودتك 👋</h3><p>سجّل دخولك للوصول إلى مكتبتك.</p></div>
+        <div class="field"><label>البريد الإلكتروني</label><input id="loginEmail" type="email" value="admin@library.test" placeholder="name@example.com"></div>
+        <div class="field"><label>كلمة المرور</label><input id="loginPassword" type="password" value="password123" placeholder="••••••••"></div>
+        <button class="submit" onclick="login()">دخول إلى المكتبة</button>
+        <div class="error" id="loginError"></div>
+        <p class="muted" style="font-size:10px;margin-top:18px">للتجربة: admin@library.test / password123</p>
+      </div>
+      <div id="registerForm" class="hidden">
+        <div class="form-title"><h3>ابدأ رحلتك 📚</h3><p>أنشئ حسابك واحصل على توصيات مخصصة.</p></div>
+        <div class="field"><label>الاسم</label><input id="regName" placeholder="اسمك"></div>
+        <div class="field"><label>البريد الإلكتروني</label><input id="regEmail" type="email" placeholder="name@example.com"></div>
+        <div class="field"><label>كلمة المرور</label><input id="regPassword" type="password" placeholder="8 أحرف على الأقل"></div>
+        <button class="submit" onclick="register()">إنشاء الحساب</button>
         <div class="error" id="regError"></div>
       </div>
-    </div>
-    <small class="note">Default admin: admin@library.test / password123</small>
+    </section>
   </div>
+</div>
 
-  <!-- MAIN APP (hidden until logged in) -->
-  <div id="appArea" class="hidden">
+<div id="appView" class="shell hidden">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">✦</div><div><h1>مكتبة نوفا</h1><small>مكتبتك الذكية</small></div></div>
+    <nav class="nav">
+      <button class="active" onclick="scrollToSection('home',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></svg><span>الرئيسية</span></button>
+      <button onclick="scrollToSection('catalog',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg><span>الكتالوج</span></button>
+      <button onclick="scrollToSection('recommendations',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 1.9 5.8H20l-4.9 3.6 1.9 5.8-5-3.5-5 3.5L9 12.4 4 8.8h6.1Z"/></svg><span>لك خصيصاً</span></button>
+      <button onclick="scrollToSection('assistant',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M8 10h8M8 14h5"/></svg><span>المساعد الذكي</span></button>
+      <button id="profileNav" onclick="openProfile()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4 3.5-6 8-6s7.2 2 8 6"/></svg><span>ملفي</span></button>
+      <button id="adminNav" class="hidden" onclick="openAdmin()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/><rect x="4" y="4" width="16" height="16" rx="3"/></svg><span>إدارة الكتب</span></button>
+    </nav>
+    <div class="side-bottom"><div class="mini-card"><b>مساعد نوفا AI</b><span>اسألني عن أي كتاب.</span></div><button class="link-btn" style="margin-top:12px;width:100%;text-align:center" onclick="logout()">تسجيل الخروج</button></div>
+  </aside>
 
-    <!-- ADMIN: ADD BOOK -->
-    <div class="card" id="adminCard" style="display:none;">
-      <h2>➕ Add a Book (Admin only)</h2>
-      <div class="row">
-        <input id="bTitle" placeholder="Title">
-        <input id="bAuthor" placeholder="Author">
+  <main class="main">
+    <div class="topbar">
+      <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="searchBox" placeholder="ابحث عن كتاب، مؤلف أو موضوع..." oninput="debouncedBooks()"></div>
+      <div class="user-area"><button class="icon-btn" onclick="loadBooks()" title="تحديث">↻</button><div class="avatar" id="avatar">N</div><div><b id="userName">زائر</b><span id="userRole">عضو المكتبة</span></div></div>
+    </div>
+
+    <section id="home" class="hero">
+      <div class="hero-content">
+        <span class="eyebrow">✦ مكتبتك الرقمية الجديدة</span>
+        <h2>المعرفة تبدأ من<br>الكتاب المناسب.</h2>
+        <p>اكتشف كتباً جديدة، احصل على توصيات ذكية، وتحدث مع مساعدك المعرفي في تجربة مصممة لتكون أسرع وأجمل.</p>
+        <div class="hero-actions"><button class="btn btn-primary" onclick="scrollToSection('catalog')">استكشف الكتب ←</button><button class="btn btn-ghost" onclick="scrollToSection('assistant')">اسأل المساعد ✦</button></div>
       </div>
-      <input id="bDescription" placeholder="Description">
-      <div class="row">
-        <select id="bCategory"></select>
-        <input id="bCopies" type="number" placeholder="Available copies" value="1">
+      <div class="hero-art"><div class="hero-book"><small>NOVA</small><strong>فن<br>التفكير</strong></div><div class="hero-book"><small>AI SERIES</small><strong>ذكاء<br>اصطناعي</strong></div><div class="hero-book"><small>IDEAS</small><strong>عالم<br>المعرفة</strong></div></div>
+    </section>
+
+    <section class="section">
+      <div class="stats">
+        <div class="stat"><div class="stat-icon">◫</div><div><b id="statBooks">—</b><span>كتاب متاح</span></div></div>
+        <div class="stat"><div class="stat-icon">✦</div><div><b id="statCategories">—</b><span>تصنيف</span></div></div>
+        <div class="stat"><div class="stat-icon">◎</div><div><b>AI</b><span>توصيات ذكية</span></div></div>
+        <div class="stat"><div class="stat-icon">✓</div><div><b id="statCopies">—</b><span>نسخة متاحة</span></div></div>
       </div>
-      <button class="primary" onclick="addBook()">Add Book</button>
-      <div class="error" id="bookError"></div>
-    </div>
+    </section>
 
-    <!-- PROFILE (users) -->
-    <div class="card" id="profileCard" style="display:none;">
-      <h2>👤 My Profile / Interests</h2>
-      <input id="pInterests" placeholder="Interests (comma separated), e.g. PHP, Laravel, MySQL">
-      <button class="primary" onclick="updateProfile()">Save Profile</button>
-      <div class="error" id="profileMsg"></div>
-    </div>
+    <section id="catalog" class="section">
+      <div class="section-head"><div><h3>استكشف الكتالوج</h3><p>مجموعتك تتغير مع كل عملية بحث.</p></div><button class="link-btn" onclick="clearSearch()">عرض الكل</button></div>
+      <div class="filters" id="categoryFilters"></div>
+      <div id="bookList" class="books" style="margin-top:16px"></div>
+    </section>
 
-    <!-- RECOMMENDATIONS -->
-    <div class="card" id="recCard" style="display:none;">
-      <h2>✨ My Recommendations</h2>
-      <button class="primary" onclick="loadRecommendations()">Get Recommendations</button>
-      <div id="recList"></div>
-    </div>
+    <section id="recommendations" class="section two-col">
+      <div class="panel"><div class="section-head"><div><h3>مختارات لك ✦</h3><p>توصيات مبنية على اهتماماتك.</p></div><button class="link-btn" onclick="loadRecommendations()">تحديث</button></div><div id="recList" class="rec-list"></div></div>
+      <div class="panel" id="profilePanel"><div class="section-head"><div><h3>اهتماماتي</h3><p>كلما حدثتها، أصبحت التوصيات أذكى.</p></div></div><div id="interestChips" class="filters" style="margin:10px 0 16px"></div><button class="btn" style="background:#eeeaff;color:#5a4bd2;width:100%" onclick="openProfile()">تعديل الاهتمامات</button></div>
+    </section>
 
-    <!-- BOOK CATALOG -->
-    <div class="card">
-      <h2>📖 Book Catalog</h2>
-      <input id="searchBox" placeholder="Search books..." oninput="loadBooks()">
-      <div id="bookList"></div>
-    </div>
+    <section id="assistant" class="section">
+      <div class="panel chat"><div class="section-head"><div><h3>مساعد نوفا الذكي 🤖</h3><p>اسأل عن الكتب، التصنيفات أو اطلب اقتراحاً.</p></div><span class="available">متصل الآن</span></div><div class="chat-box" id="chatBox"><div class="msg bot"><div class="bubble">مرحباً! أنا نوفا ✨<br>كيف أساعدك في العثور على كتابك القادم؟</div></div></div><div class="chat-form"><input id="chatInput" placeholder="مثلاً: رشح لي كتباً عن الذكاء الاصطناعي..." onkeydown="if(event.key==='Enter')askBot()"><button class="send" onclick="askBot()">➤</button></div></div>
+    </section>
+  </main>
+</div>
 
-    <!-- CHATBOT -->
-    <div class="card">
-      <h2>🤖 Ask the Library Chatbot</h2>
-      <div class="chat-box" id="chatBox"></div>
-      <div class="row">
-        <input id="chatInput" placeholder="Ask something..." onkeydown="if(event.key==='Enter')askBot()">
-        <button class="primary" onclick="askBot()" style="flex:0 0 100px;">Send</button>
-      </div>
-    </div>
-
-  </div>
-</main>
+<div id="modal" class="modal hidden"><div class="modal-card"><div class="modal-head"><h3 id="modalTitle">الملف الشخصي</h3><button class="close" onclick="closeModal()">×</button></div><div id="modalBody"></div></div></div>
+<div id="toast" class="toast"></div>
 
 <script>
-const API = window.location.origin + '/api';
-let token = localStorage.getItem('token') || null;
-let currentUser = JSON.parse(localStorage.getItem('user') || 'null');
+const API=window.location.origin+'/api';
+let token=localStorage.getItem('token')||null,currentUser=JSON.parse(localStorage.getItem('user')||'null'),categories=[],activeCategory=null,searchTimer;
+const palettes=[['#6d5dfc','#22c7d8'],['#ef6aa7','#7655db'],['#f3a64b','#e45669'],['#20b8a2','#3767dd'],['#e76b7e','#6b55c9'],['#4e7fe7','#21bfc9']];
+function headers(json=true){const h={'Accept':'application/json'};if(json)h['Content-Type']='application/json';if(token)h['Authorization']='Bearer '+token;return h}
+async function api(path,opt={}){const r=await fetch(API+path,{method:opt.method||'GET',headers:headers(!!opt.body),body:opt.body?JSON.stringify(opt.body):undefined});let d=null;try{d=await r.json()}catch(e){}if(!r.ok)throw(d&&d.message)||d||('Error '+r.status);return d}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function initials(n){return (n||'N').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase()}
+function showAuth(mode){document.getElementById('loginForm').classList.toggle('hidden',mode!=='login');document.getElementById('registerForm').classList.toggle('hidden',mode!=='register');document.getElementById('loginTab').classList.toggle('active',mode==='login');document.getElementById('registerTab').classList.toggle('active',mode==='register')}
+async function login(){const email=loginEmail.value,password=loginPassword.value;loginError.textContent='';try{const d=await api('/login',{method:'POST',body:{email,password}});saveSession(d)}catch(e){loginError.textContent=typeof e==='string'?e:JSON.stringify(e)}}
+async function register(){const name=regName.value,email=regEmail.value,password=regPassword.value;regError.textContent='';try{const d=await api('/register',{method:'POST',body:{name,email,password,password_confirmation:password}});saveSession(d)}catch(e){regError.textContent=typeof e==='string'?e:JSON.stringify(e)}}
+function saveSession(d){token=d.token;currentUser=d.user;localStorage.setItem('token',token);localStorage.setItem('user',JSON.stringify(currentUser));render()}
+function logout(){token=null;currentUser=null;localStorage.removeItem('token');localStorage.removeItem('user');location.reload()}
+function render(){if(!currentUser){authView.classList.remove('hidden');appView.classList.add('hidden');return}authView.classList.add('hidden');appView.classList.remove('hidden');userName.textContent=currentUser.name||'عضو';userRole.textContent=currentUser.role==='admin'?'مدير المكتبة':'عضو المكتبة';avatar.textContent=initials(currentUser.name);adminNav.classList.toggle('hidden',currentUser.role!=='admin');profileNav.classList.toggle('hidden',currentUser.role==='admin');profilePanel.classList.toggle('hidden',currentUser.role==='admin');loadCategories();loadBooks();loadRecommendations();loadProfile()}
+async function loadCategories(){try{categories=await api('/categories');statCategories.textContent=categories.length;categoryFilters.innerHTML='<button class="chip active" onclick="filterCategory(null,this)">الكل</button>'+categories.map(c=>`<button class="chip" onclick="filterCategory(${c.id},this)">${esc(c.name)}</button>`).join('');renderInterestFallback()}catch(e){}}
+function filterCategory(id,el){activeCategory=id;document.querySelectorAll('.chip').forEach(x=>{if(x.parentElement.id==='categoryFilters')x.classList.remove('active')});el.classList.add('active');loadBooks()}
+function debouncedBooks(){clearTimeout(searchTimer);searchTimer=setTimeout(loadBooks,250)}
+function clearSearch(){searchBox.value='';activeCategory=null;document.querySelectorAll('#categoryFilters .chip').forEach((x,i)=>x.classList.toggle('active',i===0));loadBooks()}
+function coverStyle(i){const p=palettes[i%palettes.length];return `background:linear-gradient(145deg,${p[0]},${p[1]})`}
+function imageUrl(b){
+    if(!b) return '/images/img2.jpg';
 
-function headers(json = true) {
-  const h = { 'Accept': 'application/json' };
-  if (json) h['Content-Type'] = 'application/json';
-  if (token) h['Authorization'] = 'Bearer ' + token;
-  return h;
+    // لو السيرفر رجّع رابط الصورة مباشرة
+    if(b.cover_url){
+        return b.cover_url;
+    }
+
+    // لو السيرفر رجّع مسار الصورة
+    if(b.cover_path){
+        if(/^https?:\/\//i.test(b.cover_path)){
+            return b.cover_path;
+        }
+
+        return window.location.origin + '/storage/' +
+            String(b.cover_path).replace(/^\/+/,'');
+    }
+
+    // الصورة الافتراضية
+    return '/images/img2.jpg';
+}
+function coverImage(b,i){
+  const u=imageUrl(b);
+  return u?`<img src="${esc(u)}" alt="${esc(b.title||'')}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">`:'';
+}
+async function loadBooks(){
+  bookList.innerHTML='<div class="loading" style="grid-column:1/-1">جارِ تحميل الكتب...</div>';
+  try{
+    let q='/books?search='+encodeURIComponent(searchBox.value||'');
+    if(activeCategory)q+='&category_id='+activeCategory;
+    const d=await api(q);
+    const list=d.data||d;
+    statBooks.textContent=list.length+(d.total&&d.total>list.length?'+':'');
+    statCopies.textContent=list.reduce((s,b)=>s+(Number(b.available_copies)||0),0);
+    bookList.innerHTML=list.map((b,i)=>{
+      const admin=currentUser?.role==='admin';
+      return `<article class="book-card" onclick="showBook(${b.id})">
+        <div class="cover" style="${coverStyle(i)}">
+          ${coverImage(b,i)}
+          <div class="cover-no">${String(i+1).padStart(2,'0')}</div>
+          <div class="cover-inner"><strong>${esc(b.title)}</strong><span>${esc(b.author)}</span></div>
+        </div>
+        <div class="book-info">
+          <h4>${esc(b.title)}</h4>
+          <p>${esc(b.author)} • ${esc(b.category?.name||'عام')}</p>
+          <div class="book-meta">
+            <span>${Number(b.available_copies)>0?`متاح • ${b.available_copies}`:'غير متاح'}</span><span>›</span>
+          </div>
+          ${admin?`<div class="book-actions">
+            <button class="admin-btn admin-edit" onclick="event.stopPropagation();editBook(${b.id})">✏️ تعديل</button>
+            <button class="admin-btn admin-delete" onclick="event.stopPropagation();deleteBook(${b.id},'${esc(b.title)}')">🗑️ حذف</button>
+          </div>`:''}
+        </div>
+      </article>`;
+    }).join('')||'<div class="empty" style="grid-column:1/-1">لم نجد كتباً بهذه الكلمات. جرّب بحثاً مختلفاً.</div>';
+  }catch(e){
+    bookList.innerHTML='<div class="empty" style="grid-column:1/-1">تعذر تحميل الكتالوج حالياً.</div>';
+  }
+}
+async function loadRecommendations(){if(currentUser?.role==='admin')return;recList.innerHTML='<div class="loading">نحلل اهتماماتك...</div>';try{const d=await api('/recommendations');const arr=(d||[]).slice(0,6);recList.innerHTML=arr.map((r,i)=>`<div class="rec"><div class="rec-cover" style="${coverStyle(i)}"></div><div><h4>${esc(r.book.title)}</h4><p>${esc(r.book.author)}</p></div><span class="match">${r.match}%</span></div>`).join('')||'<div class="empty">حدّث اهتماماتك لتحصل على توصيات.</div>'}catch(e){recList.innerHTML='<div class="empty">التوصيات ستظهر هنا بعد تحديث اهتماماتك.</div>'}}
+async function loadProfile(){if(currentUser?.role==='admin')return;try{const p=await api('/profile');currentUser=p;localStorage.setItem('user',JSON.stringify(currentUser));renderInterestFallback()}catch(e){}}
+function renderInterestFallback(){const arr=Array.isArray(currentUser?.interests)?currentUser.interests:[];interestChips.innerHTML=arr.length?arr.map(x=>`<span class="chip active">${esc(x)}</span>`).join(''):'<span class="muted" style="font-size:12px">لم تضف اهتماماتك بعد.</span>'}
+function openProfile(){if(currentUser?.role==='admin')return;const interests=Array.isArray(currentUser.interests)?currentUser.interests.join(', '):'';modalTitle.textContent='ملفي الشخصي';modalBody.innerHTML=`<p class="muted" style="font-size:12px">أخبرنا بما تحب لنجعل توصيات الكتب أكثر دقة.</p><div class="field"><label>اهتماماتي</label><textarea id="profileInterests" class="textarea" placeholder="مثال: الذكاء الاصطناعي، البرمجة، الأدب...">${esc(interests)}</textarea></div><button class="submit" onclick="updateProfile()">حفظ التغييرات</button>`;modal.classList.remove('hidden')}
+async function updateProfile(){const interests=profileInterests.value.split(',').map(x=>x.trim()).filter(Boolean);try{const p=await api('/profile',{method:'PUT',body:{interests}});currentUser=p;localStorage.setItem('user',JSON.stringify(p));renderInterestFallback();closeModal();toast('تم تحديث اهتماماتك ✨');loadRecommendations()}catch(e){toast('حدث خطأ أثناء الحفظ')}}
+function openAdmin(book=null){
+  const editing=!!book;
+  modalTitle.textContent=editing?'تعديل الكتاب':'إضافة كتاب جديد';
+  modalBody.innerHTML=`
+    <div class="grid2">
+      <div class="field"><label>عنوان الكتاب</label><input id="bTitle" value="${editing?esc(book.title):''}" placeholder="مثال: Clean Code"></div>
+      <div class="field"><label>المؤلف</label><input id="bAuthor" value="${editing?esc(book.author):''}" placeholder="اسم المؤلف"></div>
+    </div>
+    <div class="field"><label>الوصف</label><textarea id="bDescription" class="textarea" placeholder="وصف مختصر للكتاب">${editing?esc(book.description||''):''}</textarea></div>
+    <div class="grid2">
+      <div class="field"><label>التصنيف</label><select id="bCategory" style="width:100%;height:46px;border:1px solid var(--border);border-radius:13px;padding:0 12px;background:#fafbfe">
+        ${categories.map(c=>`<option value="${c.id}" ${editing&&Number(book.category_id)===Number(c.id)?'selected':''}>${esc(c.name)}</option>`).join('')}
+      </select></div>
+      <div class="field"><label>عدد النسخ</label><input id="bCopies" type="number" value="${editing?Number(book.available_copies)||0:1}" min="0"></div>
+    </div>
+    <div class="field">
+      <label>صورة الكتاب</label>
+      <input id="bCover" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewCover(this)">
+      <small class="muted">JPG / PNG / WebP — الحد الأقصى 2MB. في التعديل، اتركها فارغة للاحتفاظ بالصورة الحالية.</small>
+      <div>${editing&&imageUrl(book)?`<img id="coverPreview" class="image-preview" src="${esc(imageUrl(book))}" alt="صورة الكتاب الحالية">`:`<img id="coverPreview" class="image-preview hidden" alt="معاينة الصورة">`}</div>
+    </div>
+    <button class="submit" onclick="saveBook(${editing?book.id:'null'})">${editing?'حفظ التعديلات':'إضافة إلى المكتبة'}</button>
+    <div id="bookError" class="error"></div>`;
+  modal.classList.remove('hidden');
 }
 
-async function api(path, options = {}) {
-  const res = await fetch(API + path, {
-    method: options.method || 'GET',
-    headers: headers(!!options.body),
-    body: options.body ? JSON.stringify(options.body) : undefined,
-  });
-  let data = null;
-  try { data = await res.json(); } catch (e) {}
-  if (!res.ok) throw (data && data.message) ? data.message : ('Error ' + res.status);
-  return data;
+function previewCover(input){
+  const img=document.getElementById('coverPreview');
+  const file=input.files?.[0];
+  if(!img||!file)return;
+  if(file.size>2*1024*1024){toast('الصورة أكبر من 2MB');input.value='';return}
+  img.src=URL.createObjectURL(file);
+  img.classList.remove('hidden');
 }
 
-function renderUser() {
-  const el = document.getElementById('userInfo');
-  if (currentUser) {
-    el.innerHTML = `Logged in as <b>${currentUser.name}</b> (${currentUser.role}) <button onclick="logout()">Logout</button>`;
-    document.getElementById('authCard').classList.add('hidden');
-    document.getElementById('appArea').classList.remove('hidden');
-    document.getElementById('adminCard').style.display = currentUser.role === 'admin' ? 'block' : 'none';
-    document.getElementById('profileCard').style.display = currentUser.role === 'user' ? 'block' : 'none';
-    document.getElementById('recCard').style.display = currentUser.role === 'user' ? 'block' : 'none';
-    loadCategories();
+async function saveBook(id=null){
+  const fd=new FormData();
+  fd.append('title',bTitle.value.trim());
+  fd.append('author',bAuthor.value.trim());
+  fd.append('description',bDescription.value.trim());
+  fd.append('category_id',Number(bCategory.value));
+  fd.append('available_copies',Number(bCopies.value)||0);
+  const file=bCover.files?.[0];
+  if(file)fd.append('cover',file);
+
+  try{
+    if(id){
+      // Laravel method spoofing lets multipart/form-data update work reliably.
+      fd.append('_method','PUT');
+      await apiForm('/admin/books/'+id,fd,'POST');
+      toast('تم تعديل الكتاب بنجاح ✨');
+    }else{
+      await apiForm('/admin/books',fd,'POST');
+      toast('تمت إضافة الكتاب بنجاح 📚');
+    }
+    closeModal();
     loadBooks();
-  } else {
-    el.innerHTML = '';
-    document.getElementById('authCard').classList.remove('hidden');
-    document.getElementById('appArea').classList.add('hidden');
+  }catch(e){
+    bookError.textContent=typeof e==='string'?e:JSON.stringify(e);
   }
 }
 
-async function login() {
-  const email = document.getElementById('loginEmail').value;
-  const password = document.getElementById('loginPassword').value;
-  document.getElementById('loginError').textContent = '';
-  try {
-    const data = await api('/login', { method: 'POST', body: { email, password } });
-    token = data.token; currentUser = data.user;
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(currentUser));
-    renderUser();
-  } catch (e) { document.getElementById('loginError').textContent = e; }
-}
-
-async function register() {
-  const name = document.getElementById('regName').value;
-  const email = document.getElementById('regEmail').value;
-  const password = document.getElementById('regPassword').value;
-  document.getElementById('regError').textContent = '';
-  try {
-    const data = await api('/register', { method: 'POST', body: { name, email, password, password_confirmation: password } });
-    token = data.token; currentUser = data.user;
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(currentUser));
-    renderUser();
-  } catch (e) { document.getElementById('regError').textContent = JSON.stringify(e); }
-}
-
-function logout() {
-  token = null; currentUser = null;
-  localStorage.removeItem('token'); localStorage.removeItem('user');
-  renderUser();
-}
-
-async function loadCategories() {
-  try {
-    const cats = await api('/categories');
-    const sel = document.getElementById('bCategory');
-    sel.innerHTML = cats.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-  } catch (e) {}
-}
-
-async function loadBooks() {
-  const search = document.getElementById('searchBox') ? document.getElementById('searchBox').value : '';
-  try {
-    const data = await api('/books?search=' + encodeURIComponent(search));
-    const list = data.data || data;
-    document.getElementById('bookList').innerHTML = list.map(b => `
-      <div class="book">
-        <div class="title">${b.title}</div>
-        <div class="meta">by ${b.author} — ${b.category ? b.category.name : ''} — ${b.available_copies} copies</div>
-      </div>
-    `).join('') || '<p>No books yet.</p>';
-  } catch (e) {}
-}
-
-async function addBook() {
-  const body = {
-    title: document.getElementById('bTitle').value,
-    author: document.getElementById('bAuthor').value,
-    description: document.getElementById('bDescription').value,
-    category_id: parseInt(document.getElementById('bCategory').value),
-    available_copies: parseInt(document.getElementById('bCopies').value) || 0,
-  };
-  document.getElementById('bookError').textContent = '';
-  try {
-    await api('/admin/books', { method: 'POST', body });
-    document.getElementById('bTitle').value = '';
-    document.getElementById('bAuthor').value = '';
-    document.getElementById('bDescription').value = '';
-    loadBooks();
-  } catch (e) { document.getElementById('bookError').textContent = JSON.stringify(e); }
-}
-
-async function updateProfile() {
-  const interests = document.getElementById('pInterests').value.split(',').map(s => s.trim()).filter(Boolean);
-  document.getElementById('profileMsg').textContent = '';
-  try {
-    await api('/profile', { method: 'PUT', body: { interests } });
-    document.getElementById('profileMsg').textContent = 'Saved!';
-  } catch (e) { document.getElementById('profileMsg').textContent = JSON.stringify(e); }
-}
-
-async function loadRecommendations() {
-  document.getElementById('recList').innerHTML = 'Loading...';
-  try {
-    const data = await api('/recommendations');
-    document.getElementById('recList').innerHTML = data.slice(0, 10).map(r => `
-      <div class="book">
-        <span class="title">${r.book.title}</span>
-        <span class="match">${r.match}% match</span>
-        <div class="meta">by ${r.book.author}</div>
-      </div>
-    `).join('') || '<p>No recommendations yet.</p>';
-  } catch (e) { document.getElementById('recList').textContent = JSON.stringify(e); }
-}
-
-async function askBot() {
-  const input = document.getElementById('chatInput');
-  const question = input.value.trim();
-  if (!question) return;
-  const box = document.getElementById('chatBox');
-  box.innerHTML += `<div class="msg user"><div class="bubble">${question}</div></div>`;
-  input.value = '';
-  box.scrollTop = box.scrollHeight;
-  try {
-    const data = await api('/chatbot/ask', { method: 'POST', body: { question } });
-    box.innerHTML += `<div class="msg bot"><div class="bubble">${data.answer}</div></div>`;
-  } catch (e) {
-    box.innerHTML += `<div class="msg bot"><div class="bubble">Error: ${e}</div></div>`;
+async function apiForm(path,formData,method='POST'){
+  const h={'Accept':'application/json'};
+  if(token)h['Authorization']='Bearer '+token;
+  const r=await fetch(API+path,{method,headers:h,body:formData});
+  let d=null;
+  try{d=await r.json()}catch(e){}
+  if(!r.ok){
+    const msg=d&&(d.message||d.errors);
+    throw msg?((typeof msg==='string')?msg:JSON.stringify(msg)):('Error '+r.status);
   }
-  box.scrollTop = box.scrollHeight;
+  return d;
 }
 
-renderUser();
+async function editBook(id){
+  try{
+    const b=await api('/books/'+id);
+    openAdmin(b);
+  }catch(e){toast('تعذر تحميل بيانات الكتاب')}
+}
+
+async function deleteBook(id,title='هذا الكتاب'){
+  if(!confirm('هل أنت متأكد من حذف: '+title+' ؟'))return;
+  try{
+    await api('/admin/books/'+id,{method:'DELETE'});
+    closeModal();
+    toast('تم حذف الكتاب 🗑️');
+    loadBooks();
+  }catch(e){toast('تعذر حذف الكتاب: '+(typeof e==='string'?e:'حدث خطأ'))}
+}
+
+async function showBook(id){
+  try{
+    const b=await api('/books/'+id);
+    const admin=currentUser?.role==='admin';
+    const u=imageUrl(b);
+    modalTitle.textContent=b.title;
+    modalBody.innerHTML=`
+      <div style="display:flex;gap:18px;align-items:flex-start">
+        <div class="cover" style="${coverStyle(id)};width:145px;height:205px;flex:none;border-radius:15px">
+          ${coverImage(b,id)}
+          <div class="cover-inner"><strong>${esc(b.title)}</strong><span>${esc(b.author)}</span></div>
+        </div>
+        <div style="flex:1">
+          <h4 style="margin:0 0 7px">${esc(b.author)}</h4>
+          <div class="chip active" style="display:inline-block">${esc(b.category?.name||'عام')}</div>
+          <p class="muted" style="font-size:12px;line-height:1.9;margin-top:15px">${esc(b.description||'لا يوجد وصف متاح لهذا الكتاب.')}</p>
+          <p style="font-size:11px"><b>${Number(b.available_copies)||0}</b> نسخة متاحة</p>
+          ${admin?`<div class="book-actions">
+            <button class="admin-btn admin-edit" onclick="editBook(${b.id})">✏️ Edit / تعديل</button>
+            <button class="admin-btn admin-delete" onclick="deleteBook(${b.id},'${esc(b.title)}')">🗑️ Delete / حذف</button>
+          </div>`:''}
+        </div>
+      </div>`;
+    modal.classList.remove('hidden');
+  }catch(e){toast('تعذر فتح تفاصيل الكتاب')}
+}
+
+function closeModal(){modal.classList.add('hidden')}
+function scrollToSection(id,el){document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});if(el){document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));el.classList.add('active')}}
+async function askBot(){const input=chatInput,q=input.value.trim();if(!q)return;const box=chatBox;box.innerHTML+=`<div class="msg user"><div class="bubble">${esc(q)}</div></div>`;input.value='';box.scrollTop=box.scrollHeight;try{const d=await api('/chatbot/ask',{method:'POST',body:{question:q}});box.innerHTML+=`<div class="msg bot"><div class="bubble">${esc(d.answer||'لم أستطع إيجاد إجابة حالياً.')}</div></div>`}catch(e){box.innerHTML+=`<div class="msg bot"><div class="bubble">تعذر الاتصال بالمساعد حالياً.</div></div>`}box.scrollTop=box.scrollHeight}
+function toast(t){const x=document.getElementById('toast');x.textContent=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),2500)}
+document.addEventListener('click',e=>{if(e.target===modal)closeModal()});
+render();
 </script>
-</body>
-</html>
+الكود ده حط الصورة public\images\img2.jpg

@@ -1,48 +1,69 @@
 <?php
 
-use App\Http\Controllers\Admin\BookController as AdminBookController;
-use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
-use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ChatbotController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RecommendationController;
+use App\Http\Controllers\Admin\BookController as AdminBookController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\UserController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// ---------- Public / guest ----------
+// ===== Public (no auth needed) =====
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-// ---------- Authenticated (any role) ----------
+// ===== Protected (auth:sanctum) =====
 Route::middleware('auth:sanctum')->group(function () {
+
+    // Auth
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/me', [AuthController::class, 'me']);
 
-    // Profile management
-    Route::get('/profile', [ProfileController::class, 'show']);
-    Route::put('/profile', [ProfileController::class, 'update']);
-
-    // Browsing (both roles can read the catalog)
+    // Books (read only for users)
     Route::get('/books', [BookController::class, 'index']);
     Route::get('/books/{book}', [BookController::class, 'show']);
+
+    // Categories (read only)
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/categories/{category}', [CategoryController::class, 'show']);
 
-    // Personalized recommendations
+    // User profile
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::put('/profile', [ProfileController::class, 'update']);
+
+    // Recommendations (user only)
     Route::get('/recommendations', [RecommendationController::class, 'index']);
 
-    // Role-aware AI chatbot — RBAC is enforced INSIDE ChatbotService,
-    // not by route middleware, since both roles may use the chatbot
-    // but each gets a different, restricted data context.
+    // Chatbot (for both admin and user)
     Route::post('/chatbot/ask', [ChatbotController::class, 'ask']);
-    Route::get('/chatbot/history', [ChatbotController::class, 'history']);
 
-    // ---------- Admin only ----------
-    Route::middleware('role:admin')->prefix('admin')->group(function () {
-        Route::apiResource('users', AdminUserController::class);
-        Route::apiResource('books', AdminBookController::class);
-        Route::apiResource('categories', AdminCategoryController::class);
-    });
+});
+
+// ===== Admin Only =====
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+
+    // ===== Users Management =====
+    Route::get('/admin/users', [UserController::class, 'index']);
+    Route::post('/admin/users', [UserController::class, 'store']);
+    Route::get('/admin/users/{user}', [UserController::class, 'show']);
+    Route::put('/admin/users/{user}', [UserController::class, 'update']);
+    Route::delete('/admin/users/{user}', [UserController::class, 'destroy']);
+
+    // ===== Categories Management =====
+    Route::get('/admin/categories', [AdminCategoryController::class, 'index']);
+    Route::post('/admin/categories', [AdminCategoryController::class, 'store']);
+    Route::get('/admin/categories/{category}', [AdminCategoryController::class, 'show']);
+    Route::put('/admin/categories/{category}', [AdminCategoryController::class, 'update']);
+    Route::delete('/admin/categories/{category}', [AdminCategoryController::class, 'destroy']);
+
+    // ===== Books Management =====
+    Route::get('/admin/books', [AdminBookController::class, 'index']);
+    Route::post('/admin/books', [AdminBookController::class, 'store']);
+    Route::get('/admin/books/{book}', [AdminBookController::class, 'show']);
+    Route::put('/admin/books/{book}', [AdminBookController::class, 'update']);
+    Route::delete('/admin/books/{book}', [AdminBookController::class, 'destroy']);
+
 });
